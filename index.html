@@ -15,81 +15,252 @@
 <body class="bg-slate-50 text-slate-900 font-sans">
 
     <header class="gradient-bg text-white pt-20 pb-32 px-6">
-        <div class="max-w-5xl mx-auto text-center">
+        <div class="max-w-6xl mx-auto text-center">
             <span class="bg-blue-500/20 text-blue-300 px-4 py-1 rounded-full text-sm font-bold border border-blue-500/30 mb-6 inline-block">
                 Tesis de Licenciatura en Ciencia de Datos
             </span>
-            <h1 class="text-4xl md:text-6xl font-extrabold mb-6">Jerarquía de Pagos en Argentina</h1>
+            <h1 class="text-4xl md:text-6xl font-extrabold mb-6">Jerarquía de Pagos y Eficiencia de Cobranza</h1>
             <p class="text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
-                Estudio basado en <strong>Cadenas de Markov</strong> para determinar el poder de atracción de pagos de las entidades financieras ante restricciones presupuestarias.
+                Estudio basado en <strong>Cadenas de Markov</strong> para caracterizar a las entidades financieras argentinas según su poder de atracción de pagos ante restricciones presupuestarias.
             </p>
         </div>
     </header>
 
-    <section class="max-w-5xl mx-auto -mt-20 px-6">
+    <section class="max-w-6xl mx-auto -mt-16 px-6 relative z-10 mb-20">
         <div class="bg-white rounded-3xl p-8 md:p-12 card-shadow border border-slate-100">
-            <h2 class="text-2xl font-bold mb-6 flex items-center gap-3 text-blue-700">
-                <i class="fas fa-book"></i> Fundamentos (Capítulo 6)
+            <h2 class="text-3xl font-bold mb-6 flex items-center gap-3 text-slate-800">
+                <i class="fas fa-filter text-blue-600"></i> Proceso de Muestreo: Extracción de Datos
+            </h2>
+            <div class="grid md:grid-cols-2 gap-10 items-center">
+                <div>
+                    <p class="text-slate-600 leading-relaxed text-lg mb-4">
+                        La Central de Deudores del BCRA contiene registros de millones de personas físicas y jurídicas. Procesar el grafo completo en memoria resultaba computacionalmente inviable para la iteración de modelos.
+                    </p>
+                    <p class="text-slate-600 leading-relaxed text-lg mb-4">
+                        Para solucionar esto, aplicamos una técnica de <strong>muestreo sistemático</strong>: filtramos exclusivamente los registros cuyos <strong>CUIL/CUIT terminan en el dígito 0</strong>. 
+                    </p>
+                    <ul class="list-disc list-inside text-slate-600 space-y-2 font-medium">
+                        <li>Reduce el volumen de datos a un <strong>~10%</strong> del total.</li>
+                        <li>Mantiene intacta la representatividad y la distribución estadística de la población original.</li>
+                        <li>Permite cruzar los datos de Enero y Febrero eficientemente para detectar migraciones de mora.</li>
+                    </ul>
+                </div>
+                <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                    <h3 class="text-center font-bold text-slate-700 mb-4">Distribución de Deuda (Muestra CUIL 0)</h3>
+                    <canvas id="histogramChart" style="max-height: 250px;"></canvas>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="max-w-6xl mx-auto px-6 mb-20">
+        <div class="bg-white rounded-3xl p-8 md:p-12 card-shadow border border-slate-100">
+            <h2 class="text-3xl font-bold mb-6 flex items-center gap-3 text-slate-800">
+                <i class="fas fa-project-diagram text-blue-600"></i> Marco Teórico (Capítulo 6)
             </h2>
             <div class="grid md:grid-cols-2 gap-10">
                 <p class="text-slate-600 leading-relaxed text-lg">
-                    El modelo utiliza el <strong>Vector Estacionario (π)</strong>. Esta medida matemática indica la probabilidad de que un deudor priorice el pago a una entidad específica. No mide volumen de dinero, sino la <strong>preferencia revelada</strong> del cliente multibanco en situación de estrés financiero.
+                    El modelo central de la tesis utiliza el concepto de <strong>Vector Estacionario</strong>. Esta medida matemática indica la probabilidad a largo plazo de que un deudor priorice el pago a una entidad específica. No mide el volumen de dinero prestado, sino la <strong>preferencia revelada</strong> del cliente multibanco cuando entra en estrés financiero y debe elegir a quién dejar de pagarle.
                 </p>
                 <div class="bg-slate-900 text-blue-400 p-6 rounded-2xl font-mono text-center flex flex-col justify-center">
-                    <p class="text-slate-500 text-xs mb-4">// Ecuación Fundamental</p>
-                    <p class="text-white text-2xl font-bold">π P = π</p>
-                    <p class="text-xs mt-4">Matriz de Transición de Probabilidades</p>
+                    <p class="text-slate-500 text-sm mb-4">// Ecuación Fundamental de Convergencia</p>
+                    <p class="text-white text-3xl font-bold font-serif italic py-4">π P = π</p>
+                    <p class="text-sm mt-2 text-slate-400">Donde P es la Matriz de Transición de Probabilidades</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <section class="max-w-5xl mx-auto py-20 px-6">
-        <h2 class="text-3xl font-bold text-center mb-12">Definición de Ligas (Cortes de Deuda)</h2>
+    <section class="max-w-6xl mx-auto px-6 mb-20">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl font-bold text-slate-800 mb-4">Definición de Clases (Estratos de Deuda)</h2>
+            <p class="text-slate-600 text-lg">Se establecieron puntos de corte basados en activos reales de la economía para aislar comportamientos y evitar sesgos inflacionarios.</p>
+        </div>
         <div class="grid md:grid-cols-3 gap-6">
-            <div class="bg-white p-8 rounded-2xl border border-slate-200 text-center">
-                <i class="fas fa-car text-3xl text-green-500 mb-4"></i>
-                <h3 class="font-bold text-lg mb-2">Pequeños Deudores</h3>
-                <p class="text-2xl font-black mb-2">Hasta $25.5M</p>
-                <p class="text-sm text-slate-500">Ref: Valor Renault Kwid 0km</p>
+            <div class="bg-white p-8 rounded-2xl border border-slate-200 text-center hover:shadow-lg transition-shadow">
+                <i class="fas fa-car-side text-4xl text-green-500 mb-6"></i>
+                <h3 class="font-bold text-xl mb-2 text-slate-800">Clase Pequeños</h3>
+                <p class="text-2xl font-black mb-3 text-slate-900">Hasta $25.5M</p>
+                <p class="text-sm text-slate-500 bg-slate-100 p-3 rounded-lg">
+                    <strong>Corte:</strong> Valor de un Renault Kwid 0km.<br>
+                    Créditos de consumo, tarjetas y micropréstamos.
+                </p>
             </div>
-            <div class="bg-white p-8 rounded-2xl border-2 border-blue-500 text-center relative overflow-hidden">
-                <div class="absolute top-0 right-0 bg-blue-500 text-white text-[10px] px-2 py-1 uppercase font-bold">Más común</div>
-                <i class="fas fa-building text-3xl text-blue-500 mb-4"></i>
-                <h3 class="font-bold text-lg mb-2">Medianos Deudores</h3>
-                <p class="text-2xl font-black mb-2">$25.5M - $150M</p>
-                <p class="text-sm text-slate-500">Ref: Depto 2 Ambientes</p>
+            <div class="bg-white p-8 rounded-2xl border-2 border-blue-500 text-center relative overflow-hidden shadow-md transform md:-translate-y-2">
+                <div class="absolute top-0 right-0 bg-blue-500 text-white text-xs px-3 py-1 uppercase font-bold rounded-bl-lg">Core del Estudio</div>
+                <i class="fas fa-building text-4xl text-blue-500 mb-6"></i>
+                <h3 class="font-bold text-xl mb-2 text-slate-800">Clase Medianos</h3>
+                <p class="text-2xl font-black mb-3 text-slate-900">$25.5M a $150M</p>
+                <p class="text-sm text-slate-500 bg-blue-50 p-3 rounded-lg">
+                    <strong>Corte:</strong> Valor Depto 2 Ambientes.<br>
+                    Préstamos prendarios y bienes durables.
+                </p>
             </div>
-            <div class="bg-white p-8 rounded-2xl border border-slate-200 text-center">
-                <i class="fas fa-vault text-3xl text-purple-500 mb-4"></i>
-                <h3 class="font-bold text-lg mb-2">Grandes Deudores</h3>
-                <p class="text-2xl font-black mb-2">+ $150M</p>
-                <p class="text-sm text-slate-500">Deudas Patrimoniales/Comerciales</p>
+            <div class="bg-white p-8 rounded-2xl border border-slate-200 text-center hover:shadow-lg transition-shadow">
+                <i class="fas fa-landmark text-4xl text-purple-500 mb-6"></i>
+                <h3 class="font-bold text-xl mb-2 text-slate-800">Clase Grandes</h3>
+                <p class="text-2xl font-black mb-3 text-slate-900">+ $150M</p>
+                <p class="text-sm text-slate-500 bg-slate-100 p-3 rounded-lg">
+                    <strong>Corte:</strong> Superior al valor inmueble base.<br>
+                    Deudas patrimoniales, corporativas y comerciales.
+                </p>
             </div>
         </div>
     </section>
 
-    <section class="bg-slate-900 py-20 px-6 text-white">
-        <div class="max-w-5xl mx-auto">
-            <div class="flex flex-col md:flex-row justify-between items-center mb-10 gap-6">
-                <h2 class="text-3xl font-bold">Top 10: Poder de Atracción</h2>
-                <div class="flex bg-slate-800 p-1 rounded-xl">
-                    <button onclick="updateChart('pequenos')" class="tab-btn px-4 py-2 rounded-lg text-sm font-bold bg-blue-600">PEQUEÑOS</button>
-                    <button onclick="updateChart('medianos')" class="tab-btn px-4 py-2 rounded-lg text-sm font-bold">MEDIANOS</button>
-                    <button onclick="updateChart('grandes')" class="tab-btn px-4 py-2 rounded-lg text-sm font-bold">GRANDES</button>
+    <section class="bg-slate-900 py-24 px-6 text-white">
+        <div class="max-w-6xl mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-12 gap-6">
+                <div>
+                    <h2 class="text-4xl font-bold mb-2">Rankings Finales</h2>
+                    <p class="text-slate-400">Poder de atracción de pagos por Clase.</p>
+                </div>
+                <div class="flex bg-slate-800 p-1.5 rounded-xl border border-slate-700">
+                    <button onclick="updateRankingChart('pequenos')" class="tab-btn active-tab px-6 py-2.5 rounded-lg text-sm font-bold bg-blue-600 text-white shadow-md transition-all">CLASE PEQUEÑOS</button>
+                    <button onclick="updateRankingChart('medianos')" class="tab-btn px-6 py-2.5 rounded-lg text-sm font-bold text-slate-400 hover:text-white transition-all">CLASE MEDIANOS</button>
+                    <button onclick="updateRankingChart('grandes')" class="tab-btn px-6 py-2.5 rounded-lg text-sm font-bold text-slate-400 hover:text-white transition-all">CLASE GRANDES</button>
                 </div>
             </div>
             
-            <div class="bg-white rounded-3xl p-6 md:p-10 shadow-2xl">
-                <canvas id="rankingChart" style="max-height: 500px;"></canvas>
+            <div class="bg-white rounded-3xl p-6 md:p-10 shadow-2xl text-slate-900">
+                <canvas id="rankingChart" style="height: 550px; width: 100%;"></canvas>
             </div>
         </div>
     </section>
 
-    <footer class="py-10 text-center text-slate-400 text-sm">
-        <p>© 2026 Tesis Licenciatura en Ciencia de Datos - Despliegue en Vercel</p>
+    <footer class="bg-slate-950 py-10 text-center text-slate-500 text-sm">
+        <p>© 2026 Tesis Licenciatura en Ciencia de Datos - Procesamiento de Central de Deudores BCRA</p>
     </footer>
 
-    <script src="script.js"></script>
+    <script>
+        // 1. DATA PARA EL HISTOGRAMA (Muestra CUIL 0)
+        // Representación de una distribución sesgada a la derecha (log-normal típica de deudas)
+        const histoData = {
+            labels: ['0 - 1M', '1M - 5M', '5M - 15M', '15M - 25.5M', '+25.5M'],
+            values: [45000, 28000, 12000, 5000, 2500] // Cantidad de deudores simulada para la muestra
+        };
+
+        const ctxHisto = document.getElementById('histogramChart').getContext('2d');
+        new Chart(ctxHisto, {
+            type: 'bar',
+            data: {
+                labels: histoData.labels,
+                datasets: [{
+                    label: 'Frecuencia (Cant. Deudores)',
+                    data: histoData.values,
+                    backgroundColor: '#cbd5e1',
+                    hoverBackgroundColor: '#3b82f6',
+                    borderRadius: 4,
+                    barPercentage: 0.9,
+                    categoryPercentage: 1.0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: { grid: { display: false } },
+                    y: { beginAtZero: true, border: {dash: [4, 4]} }
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { callbacks: { label: (context) => `Deudores: ${context.raw.toLocaleString()}` } }
+                }
+            }
+        });
+
+        // 2. DATA PARA LOS RANKINGS MARKOV
+        const rankings = {
+            pequenos: {
+                labels: ['MERCADOLIBRE S.R.L.', 'TARJETA NARANJA S.A.', 'NARANJA DIGITAL', 'BANCO NACION', 'BANCO MACRO S.A.', 'BBVA ARGENTINA', 'BANCO GALICIA', 'BANCO PROVINCIA', 'SANTANDER', 'BANCO INDUSTRIAL'],
+                values: [13.22, 7.70, 3.72, 3.55, 3.35, 2.70, 2.41, 2.20, 1.78, 1.62]
+            },
+            medianos: {
+                labels: ['BANCO GALICIA', 'BANCO NACION', 'SANTANDER', 'BBVA ARGENTINA', 'BANCO MACRO S.A.', 'ICBC ARGENTINA', 'BANCO CREDICOOP', 'BANCO PROVINCIA', 'BANCO SUPERVIELLE', 'BANCO PATAGONIA'],
+                values: [12.86, 10.80, 10.57, 7.13, 5.67, 4.36, 3.64, 3.60, 3.55, 2.59]
+            },
+            grandes: {
+                labels: ['BANCO NACION', 'BANCO MACRO S.A.', 'BANCO GALICIA', 'BANCO PROVINCIA', 'SANTANDER', 'BBVA ARGENTINA', 'PROVINCIA LEASING', 'BANCO SUPERVIELLE', 'BANCO CREDICOOP', 'BANCO DEL SOL'],
+                values: [20.49, 10.65, 9.34, 8.15, 4.79, 4.00, 3.78, 3.30, 3.24, 2.49]
+            }
+        };
+
+        let rankingChart;
+        const ctxRanking = document.getElementById('rankingChart').getContext('2d');
+
+        function initRankingChart() {
+            // Invertimos los arrays para que el #1 quede arriba en Chart.js (horizontal bar)
+            const initialLabels = [...rankings.pequenos.labels].reverse();
+            const initialValues = [...rankings.pequenos.values].reverse();
+
+            // Colorear al ganador de forma distinta
+            const bgColors = initialValues.map((_, i) => i === initialValues.length - 1 ? '#2563eb' : '#94a3b8');
+
+            rankingChart = new Chart(ctxRanking, {
+                type: 'bar',
+                data: {
+                    labels: initialLabels,
+                    datasets: [{
+                        label: 'Score Markov (%)',
+                        data: initialValues,
+                        backgroundColor: bgColors,
+                        borderRadius: 6,
+                        borderSkipped: false
+                    }]
+                },
+                options: {
+                    indexAxis: 'y', // Gráfico de barras horizontales
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { 
+                            beginAtZero: true, 
+                            border: {dash: [4, 4]},
+                            ticks: { callback: function(value) { return value + "%" } }
+                        },
+                        y: { 
+                            grid: { display: false }, 
+                            ticks: { font: { weight: 'bold', size: 11 }, color: '#334155' } 
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: { label: (context) => ` Score Markov: ${context.raw}%` }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Función que se ejecuta al hacer click en los botones
+        window.updateRankingChart = function(clase) {
+            // Actualizar estilos de los botones
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-blue-600', 'text-white', 'shadow-md');
+                btn.classList.add('text-slate-400');
+                if(btn.innerText.toLowerCase().includes(clase)) {
+                    btn.classList.add('bg-blue-600', 'text-white', 'shadow-md');
+                    btn.classList.remove('text-slate-400');
+                }
+            });
+
+            // Revertir datos para el gráfico de abajo hacia arriba
+            const newLabels = [...rankings[clase].labels].reverse();
+            const newValues = [...rankings[clase].values].reverse();
+            const bgColors = newValues.map((_, i) => i === newValues.length - 1 ? '#2563eb' : '#94a3b8');
+
+            // Actualizar Data del Chart
+            rankingChart.data.labels = newLabels;
+            rankingChart.data.datasets[0].data = newValues;
+            rankingChart.data.datasets[0].backgroundColor = bgColors;
+            rankingChart.update();
+        };
+
+        // Inicializar al cargar la ventana
+        window.addEventListener('DOMContentLoaded', () => {
+            initRankingChart();
+        });
+    </script>
 </body>
 </html>
