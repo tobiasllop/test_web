@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tesis: Caracterización de Entidades Financieras</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .gradient-bg { background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); }
+        .card-shadow { box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 font-sans">
+
+    <header class="gradient-bg text-white pt-20 pb-32 px-6">
+        <div class="max-w-5xl mx-auto text-center">
+            <span class="bg-blue-500/20 text-blue-300 px-4 py-1 rounded-full text-sm font-bold border border-blue-500/30 mb-6 inline-block">
+                Tesis de Licenciatura en Ciencia de Datos
+            </span>
+            <h1 class="text-4xl md:text-6xl font-extrabold mb-6">Jerarquía de Pagos en Argentina</h1>
+            <p class="text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
+                Estudio basado en <strong>Cadenas de Markov</strong> para determinar el poder de atracción de pagos de las entidades financieras ante restricciones presupuestarias.
+            </p>
+        </div>
+    </header>
+
+    <section class="max-w-5xl mx-auto -mt-20 px-6">
+        <div class="bg-white rounded-3xl p-8 md:p-12 card-shadow border border-slate-100">
+            <h2 class="text-2xl font-bold mb-6 flex items-center gap-3 text-blue-700">
+                <i class="fas fa-book"></i> Fundamentos (Capítulo 6)
+            </h2>
+            <div class="grid md:grid-cols-2 gap-10">
+                <p class="text-slate-600 leading-relaxed text-lg">
+                    El modelo utiliza el <strong>Vector Estacionario (π)</strong>. Esta medida matemática indica la probabilidad de que un deudor priorice el pago a una entidad específica. No mide volumen de dinero, sino la <strong>preferencia revelada</strong> del cliente multibanco en situación de estrés financiero.
+                </p>
+                <div class="bg-slate-900 text-blue-400 p-6 rounded-2xl font-mono text-center flex flex-col justify-center">
+                    <p class="text-slate-500 text-xs mb-4">// Ecuación Fundamental</p>
+                    <p class="text-white text-2xl font-bold">π P = π</p>
+                    <p class="text-xs mt-4">Matriz de Transición de Probabilidades</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="max-w-5xl mx-auto py-20 px-6">
+        <h2 class="text-3xl font-bold text-center mb-12">Definición de Ligas (Cortes de Deuda)</h2>
+        <div class="grid md:grid-cols-3 gap-6">
+            <div class="bg-white p-8 rounded-2xl border border-slate-200 text-center">
+                <i class="fas fa-car text-3xl text-green-500 mb-4"></i>
+                <h3 class="font-bold text-lg mb-2">Pequeños Deudores</h3>
+                <p class="text-2xl font-black mb-2">Hasta $25.5M</p>
+                <p class="text-sm text-slate-500">Ref: Valor Renault Kwid 0km</p>
+            </div>
+            <div class="bg-white p-8 rounded-2xl border-2 border-blue-500 text-center relative overflow-hidden">
+                <div class="absolute top-0 right-0 bg-blue-500 text-white text-[10px] px-2 py-1 uppercase font-bold">Más común</div>
+                <i class="fas fa-building text-3xl text-blue-500 mb-4"></i>
+                <h3 class="font-bold text-lg mb-2">Medianos Deudores</h3>
+                <p class="text-2xl font-black mb-2">$25.5M - $150M</p>
+                <p class="text-sm text-slate-500">Ref: Depto 2 Ambientes</p>
+            </div>
+            <div class="bg-white p-8 rounded-2xl border border-slate-200 text-center">
+                <i class="fas fa-vault text-3xl text-purple-500 mb-4"></i>
+                <h3 class="font-bold text-lg mb-2">Grandes Deudores</h3>
+                <p class="text-2xl font-black mb-2">+ $150M</p>
+                <p class="text-sm text-slate-500">Deudas Patrimoniales/Comerciales</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="bg-slate-900 py-20 px-6 text-white">
+        <div class="max-w-5xl mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-10 gap-6">
+                <h2 class="text-3xl font-bold">Top 10: Poder de Atracción</h2>
+                <div class="flex bg-slate-800 p-1 rounded-xl">
+                    <button onclick="updateChart('pequenos')" class="tab-btn px-4 py-2 rounded-lg text-sm font-bold bg-blue-600">PEQUEÑOS</button>
+                    <button onclick="updateChart('medianos')" class="tab-btn px-4 py-2 rounded-lg text-sm font-bold">MEDIANOS</button>
+                    <button onclick="updateChart('grandes')" class="tab-btn px-4 py-2 rounded-lg text-sm font-bold">GRANDES</button>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-3xl p-6 md:p-10 shadow-2xl">
+                <canvas id="rankingChart" style="max-height: 500px;"></canvas>
+            </div>
+        </div>
+    </section>
+
+    <footer class="py-10 text-center text-slate-400 text-sm">
+        <p>© 2026 Tesis Licenciatura en Ciencia de Datos - Despliegue en Vercel</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
