@@ -120,6 +120,66 @@
         </div>
     </section>
 
+    <section class="max-w-6xl mx-auto px-6 mb-20">
+        <div class="bg-white rounded-3xl p-8 md:p-12 card-shadow border border-slate-100">
+            <h2 class="text-3xl font-bold mb-6 flex items-center gap-3 text-slate-800">
+                <i class="fas fa-book-open text-blue-600"></i> Marco Teórico: El Método de Markov
+            </h2>
+            <p class="text-slate-600 leading-relaxed text-lg mb-8">
+                Para el ranking de las entidades, implementamos el <strong>Método de Markov</strong> propuesto por Langville & Meyer en <em>"Who’s #1?"</em>. Este enfoque trata al sistema financiero como un grafo donde el flujo de votos determina la "fortaleza" de una entidad.
+            </p>
+
+            <div class="grid md:grid-cols-2 gap-10">
+                <div>
+                    <h3 class="text-xl font-bold text-slate-800 mb-4">1. La Intuición: El Deudor como Votante</h3>
+                    <p class="text-slate-600 leading-relaxed mb-6">
+                        Utilizamos el modelo del <strong>"Hincha de Buen Tiempo"</strong> (Fair Weather Fan). Cada vez que un deudor tiene deudas con dos entidades (A y B) en la misma situación inicial, se genera un "partido". Si en el mes siguiente el deudor prioriza el pago a la entidad A sobre la B, la entidad B (perdedora) "emite un voto" de confianza hacia la entidad A (ganadora).
+                    </p>
+
+                    <h3 class="text-xl font-bold text-slate-800 mb-4">2. Etapas del Algoritmo</h3>
+                    <ul class="space-y-4 text-slate-600">
+                        <li class="flex items-start gap-3">
+                            <i class="fas fa-check-circle text-blue-500 mt-1 text-lg"></i> 
+                            <span><strong>Matriz de Votos (V):</strong> Se contabilizan todas las derrotas relativas entre bancos.</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <i class="fas fa-check-circle text-blue-500 mt-1 text-lg"></i> 
+                            <span><strong>Matriz Estocástica (S):</strong> Se normalizan los votos. Los bancos "invictos" se tratan como nodos sumideros, repartiendo su probabilidad equitativamente (1/n).</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <i class="fas fa-check-circle text-blue-500 mt-1 text-lg"></i> 
+                            <span><strong>Matriz de Teleportación (S̅):</strong> Se aplica un <em>Damping Factor</em> (α = 0.85). Esto garantiza que el sistema sea irreducible y el ranking converja.</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <i class="fas fa-check-circle text-blue-500 mt-1 text-lg"></i> 
+                            <span><strong>Vector Estacionario (π):</strong> El autovector principal determina el ranking, representando el "poder de atracción de pagos" de cada banco.</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                    <h3 class="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
+                        <i class="fas fa-calculator text-blue-500"></i> Ejemplo Práctico (3 Entidades)
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 border-l-4 border-l-blue-500">
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Deudor X (Sit 2 en A y B)</p>
+                            <p class="text-slate-700">A mejora a Sit 1, B sigue en 2.<br><span class="font-bold text-blue-600 mt-1 inline-block">→ B emite un voto a A</span></p>
+                        </div>
+                        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 border-l-4 border-l-blue-500">
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Deudor Y (Sit 1 en B y C)</p>
+                            <p class="text-slate-700">C mejora menos que B.<br><span class="font-bold text-blue-600 mt-1 inline-block">→ C emite un voto a B</span></p>
+                        </div>
+                        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 border-l-4 border-l-blue-500">
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Deudor Z (Sit 3 en A y C)</p>
+                            <p class="text-slate-700">C mejora a Sit 1, A sigue en 3.<br><span class="font-bold text-blue-600 mt-1 inline-block">→ A emite un voto a C</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <section class="bg-slate-900 py-24 px-6 text-white">
         <div class="max-w-6xl mx-auto">
             <div class="flex flex-col md:flex-row justify-between items-center mb-12 gap-6">
