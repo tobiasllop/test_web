@@ -10,6 +10,7 @@
     <style>
         .gradient-bg { background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); }
         .card-shadow { box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); }
+        .matrix-bracket { border-left: 2px solid #1e293b; border-right: 2px solid #1e293b; border-radius: 6px; padding: 0.5rem; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-900 font-sans">
@@ -94,42 +95,13 @@
     <section class="max-w-6xl mx-auto px-6 mb-20">
         <div class="bg-white rounded-3xl p-8 md:p-12 card-shadow border border-slate-100">
             <h2 class="text-3xl font-bold mb-6 flex items-center gap-3 text-slate-800">
-                <i class="fas fa-project-diagram text-blue-600"></i> Matriz de Transición de Probabilidades
-            </h2>
-            <div class="grid md:grid-cols-2 gap-10 items-center">
-                <div>
-                    <p class="text-slate-600 leading-relaxed text-lg mb-4">
-                        El modelo central utiliza <strong>Cadenas de Markov</strong> para analizar el grafo dirigido de las deudas. Los nodos representan a las entidades y las aristas (flechas) representan el flujo de "probabilidad de pago" cuando un deudor elige a quién pagarle y a quién no.
-                    </p>
-                    <p class="text-slate-600 leading-relaxed text-lg mb-4">
-                        En el ecosistema real (como se observa en el Top 5 de Pequeños), entidades como MercadoLibre o Tarjeta Naranja actúan como fuertes <strong>atractores o sumideros</strong> de probabilidad. Los bancos tradicionales, por el contrario, suelen ceder flujo de pagos hacia estas fintechs/tarjetas ante restricciones de presupuesto.
-                    </p>
-                    <div class="bg-slate-900 text-blue-400 p-4 rounded-xl font-mono text-center mt-6 shadow-inner">
-                        <p class="text-white text-xl font-bold font-serif italic py-2">π P = π</p>
-                        <p class="text-xs text-slate-400">El Vector Estacionario (π) define el Ranking final.</p>
-                    </div>
-                </div>
-                <div class="bg-slate-50 rounded-2xl border border-slate-200 p-2 flex items-center justify-center min-h-[300px] text-center">
-                    <div>
-                        <i class="fas fa-network-wired text-6xl text-slate-300 mb-4 block"></i>
-                        <p class="text-slate-500 font-medium">Grafo de Transición Top 5 (Pequeños)</p>
-                        <p class="text-xs text-slate-400 max-w-xs mx-auto mt-2">Nodos interconectados (MercadoLibre, Naranja, Nación, Macro, BBVA) demostrando la migración de pagos mediante pesos probabilísticos.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="max-w-6xl mx-auto px-6 mb-20">
-        <div class="bg-white rounded-3xl p-8 md:p-12 card-shadow border border-slate-100">
-            <h2 class="text-3xl font-bold mb-6 flex items-center gap-3 text-slate-800">
                 <i class="fas fa-book-open text-blue-600"></i> Marco Teórico: El Método de Markov
             </h2>
             <p class="text-slate-600 leading-relaxed text-lg mb-8">
-                Para el ranking de las entidades, implementamos el <strong>Método de Markov</strong> propuesto por Langville & Meyer en <em>"Who’s #1?"</em>. Este enfoque trata al sistema financiero como un grafo donde el flujo de votos determina la "fortaleza" de una entidad.
+                Para el ranking de las entidades, implementamos el <strong>Método de Markov</strong> propuesto por Langville & Meyer en <em>"Who’s #1?"</em>. Este enfoque trata al sistema financiero como un grafo dirigido donde el flujo de priorización de pagos determina la "fortaleza" de una entidad.
             </p>
 
-            <div class="grid md:grid-cols-2 gap-10">
+            <div class="grid lg:grid-cols-2 gap-12">
                 <div>
                     <h3 class="text-xl font-bold text-slate-800 mb-4">1. La Intuición: El Deudor como Votante</h3>
                     <p class="text-slate-600 leading-relaxed mb-6">
@@ -152,28 +124,56 @@
                         </li>
                         <li class="flex items-start gap-3">
                             <i class="fas fa-check-circle text-blue-500 mt-1 text-lg"></i> 
-                            <span><strong>Vector Estacionario (π):</strong> El autovector principal determina el ranking, representando el "poder de atracción de pagos" de cada banco.</span>
+                            <span><strong>Vector Estacionario (π):</strong> El autovector principal determina el ranking, representando el "poder de atracción de pagos".</span>
                         </li>
                     </ul>
                 </div>
 
                 <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200">
-                    <h3 class="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
+                    <h3 class="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
                         <i class="fas fa-calculator text-blue-500"></i> Ejemplo Práctico (3 Entidades)
                     </h3>
-                    <div class="space-y-4">
-                        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 border-l-4 border-l-blue-500">
-                            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Deudor X (Sit 2 en A y B)</p>
-                            <p class="text-slate-700">A mejora a Sit 1, B sigue en 2.<br><span class="font-bold text-blue-600 mt-1 inline-block">→ B emite un voto a A</span></p>
+                    
+                    <p class="text-sm text-slate-500 mb-4">Supongamos 3 entidades: <strong>Galicia (A)</strong>, <strong>Francés (B)</strong> y <strong>Nación (C)</strong>, y 3 deudores que en el mes base partieron empatados en situaciones:</p>
+                    
+                    <ul class="text-sm text-slate-700 space-y-2 mb-6 bg-white p-4 rounded border border-slate-100 shadow-sm">
+                        <li><strong>Deudor X:</strong> A mejora, B no. <span class="text-blue-600 font-bold">→ B vota a A</span></li>
+                        <li><strong>Deudor Y:</strong> C empeora menos que B. <span class="text-blue-600 font-bold">→ B vota a C</span></li>
+                        <li><strong>Deudor Z:</strong> C mejora, A no. <span class="text-blue-600 font-bold">→ A vota a C</span></li>
+                    </ul>
+
+                    <div class="space-y-6">
+                        <div class="flex items-center gap-4">
+                            <div class="text-right w-16 text-sm font-bold text-slate-600">Paso 1<br><span class="text-xs font-normal">Matriz V</span></div>
+                            <div class="font-serif italic font-bold text-xl">V =</div>
+                            <div class="matrix-bracket font-mono text-center text-sm grid grid-cols-3 gap-x-6 gap-y-1 bg-white">
+                                <div class="text-slate-400">0</div><div>0</div><div class="text-blue-600 font-bold">1</div>
+                                <div class="text-blue-600 font-bold">1</div><div class="text-slate-400">0</div><div class="text-blue-600 font-bold">1</div>
+                                <div class="text-slate-400">0</div><div class="text-slate-400">0</div><div class="text-slate-400">0</div>
+                            </div>
                         </div>
-                        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 border-l-4 border-l-blue-500">
-                            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Deudor Y (Sit 1 en B y C)</p>
-                            <p class="text-slate-700">C mejora menos que B.<br><span class="font-bold text-blue-600 mt-1 inline-block">→ C emite un voto a B</span></p>
+
+                        <div class="flex items-center gap-4">
+                            <div class="text-right w-16 text-sm font-bold text-slate-600">Paso 2<br><span class="text-xs font-normal">Matriz S</span></div>
+                            <div class="font-serif italic font-bold text-xl">S =</div>
+                            <div class="matrix-bracket font-mono text-center text-sm grid grid-cols-3 gap-x-4 gap-y-1 bg-white">
+                                <div class="text-slate-400">0</div><div>0</div><div>1</div>
+                                <div>0.5</div><div class="text-slate-400">0</div><div>0.5</div>
+                                <div class="text-amber-500 font-bold">0.33</div><div class="text-amber-500 font-bold">0.33</div><div class="text-amber-500 font-bold">0.33</div>
+                            </div>
                         </div>
-                        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 border-l-4 border-l-blue-500">
-                            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Deudor Z (Sit 3 en A y C)</p>
-                            <p class="text-slate-700">C mejora a Sit 1, A sigue en 3.<br><span class="font-bold text-blue-600 mt-1 inline-block">→ A emite un voto a C</span></p>
+                        <p class="text-xs text-amber-600 ml-24 -mt-4">* El nodo sumidero (Nación) se estabiliza con 1/N.</p>
+
+                        <div class="flex items-center gap-4">
+                            <div class="text-right w-16 text-sm font-bold text-slate-600">Paso 3<br><span class="text-xs font-normal">Matriz S̅</span></div>
+                            <div class="font-serif italic font-bold text-xl">S̅ =</div>
+                            <div class="matrix-bracket font-mono text-center text-sm grid grid-cols-3 gap-x-4 gap-y-1 bg-white">
+                                <div>0.05</div><div>0.05</div><div>0.90</div>
+                                <div>0.47</div><div>0.05</div><div>0.47</div>
+                                <div>0.33</div><div>0.33</div><div>0.33</div>
+                            </div>
                         </div>
+                        <p class="text-xs text-slate-500 ml-24 -mt-4">* Se aplica Damping Factor (α = 0.85).</p>
                     </div>
                 </div>
             </div>
@@ -229,7 +229,7 @@
                 scales: {
                     x: { grid: { display: false } },
                     y: { 
-                        type: 'logarithmic', // CLAVE: Escala logarítmica para ver los datos pequeños
+                        type: 'logarithmic',
                         grid: { color: '#f1f5f9' },
                         ticks: {
                             callback: function(value) {
