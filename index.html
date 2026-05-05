@@ -1,317 +1,557 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tesis: Caracterización de Entidades Financieras - Tobias Llop</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        .gradient-bg { background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); }
-        .card-shadow { box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); }
-        .matrix-bracket { border-left: 2px solid #1e293b; border-right: 2px solid #1e293b; border-radius: 6px; padding: 0.5rem; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tesis · Jerarquía de Pagos BCRA</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0d0f14;
+      --surface:  #141720;
+      --surface2: #1c2030;
+      --border:   #2a2f42;
+      --accent:   #e8c97a;
+      --accent2:  #5b8cee;
+      --text:     #e2e4ec;
+      --muted:    #6b7280;
+      --serif:    'Libre Baskerville', Georgia, serif;
+      --mono:     'IBM Plex Mono', monospace;
+      --sans:     'IBM Plex Sans', sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      font-weight: 300;
+      line-height: 1.65;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 1000; opacity: 0.6;
+    }
+
+    /* ── Header ── */
+    header {
+      position: relative;
+      padding: 7rem 2rem 5rem;
+      max-width: 920px;
+      margin: 0 auto;
+    }
+
+    .tag {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      display: inline-block;
+      padding: 0.25rem 0.8rem;
+      border-radius: 2px;
+      margin-bottom: 2rem;
+      opacity: 0;
+      animation: fadeUp 0.6s 0.1s ease forwards;
+    }
+
+    h1 {
+      font-family: var(--serif);
+      font-size: clamp(2rem, 5vw, 3.6rem);
+      font-weight: 700;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      margin-bottom: 1.5rem;
+      opacity: 0;
+      animation: fadeUp 0.6s 0.25s ease forwards;
+    }
+    h1 em { font-style: italic; color: var(--accent); }
+
+    .subtitle {
+      font-size: 1.05rem;
+      color: var(--muted);
+      max-width: 600px;
+      margin-bottom: 2.5rem;
+      opacity: 0;
+      animation: fadeUp 0.6s 0.4s ease forwards;
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+      opacity: 0;
+      animation: fadeUp 0.6s 0.55s ease forwards;
+    }
+    .meta-row span { display: flex; align-items: center; gap: 0.4rem; }
+    .meta-row span::before { content: '—'; color: var(--accent2); }
+
+    hr.divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      max-width: 920px;
+      margin: 0 auto 4rem;
+    }
+
+    /* ── Sections ── */
+    section {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 0 2rem 5rem;
+    }
+
+    .section-label {
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent2);
+      margin-bottom: 1rem;
+    }
+
+    h2 {
+      font-family: var(--serif);
+      font-size: 1.6rem;
+      font-weight: 700;
+      margin-bottom: 1.2rem;
+      line-height: 1.3;
+    }
+
+    p { color: #9aa0b4; font-size: 0.95rem; margin-bottom: 1rem; max-width: 700px; }
+
+    /* ── Sit nav (Tabs) ── */
+    .sit-nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin: 2rem 0 1.2rem;
+    }
+
+    .sit-btn {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      letter-spacing: 0.06em;
+      padding: 0.45rem 1rem;
+      border-radius: 3px;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      transition: all 0.2s;
+    }
+    .sit-btn:hover, .sit-btn.active {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(232,201,122,0.06);
+    }
+
+    /* ── Grids & Cards ── */
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+    }
+    .classes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+    }
+    @media (max-width: 700px) { .about-grid { grid-template-columns: 1fr; } }
+
+    .about-card {
+      padding: 1.4rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+    }
+    .about-card h3 {
+      font-family: var(--serif);
+      font-size: 1rem;
+      margin-bottom: 0.65rem;
+      color: var(--text);
+    }
+    .about-card p { font-size: 0.84rem; margin-bottom: 0; }
+
+    /* ── Chart wrapper ── */
+    .chart-wrapper {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1.5rem;
+      transition: opacity 0.2s;
+      margin-top: 1.5rem;
+    }
+
+    /* ── Matrices ── */
+    .matrix-box {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .matrix-bracket {
+      border-left: 2px solid var(--muted);
+      border-right: 2px solid var(--muted);
+      border-radius: 6px;
+      padding: 0.5rem;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem 1.5rem;
+      text-align: center;
+      font-family: var(--mono);
+      font-size: 0.85rem;
+      color: var(--text);
+    }
+    .matrix-row { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; justify-content: center; }
+    .matrix-label { font-family: var(--serif); font-style: italic; font-weight: bold; font-size: 1.2rem; color: var(--accent2); }
+
+    ul.theory-list { list-style: none; padding-left: 0; margin-bottom: 1.5rem; }
+    ul.theory-list li { position: relative; padding-left: 1.2rem; margin-bottom: 0.8rem; font-size: 0.9rem; color: #9aa0b4; }
+    ul.theory-list li::before { content: '▹'; position: absolute; left: 0; color: var(--accent2); font-family: var(--mono); }
+
+    /* ── Footer ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 3rem 2rem;
+      max-width: 920px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    footer p { font-size: 0.78rem; color: var(--muted); margin: 0; }
+    footer a { color: var(--accent2); text-decoration: none; font-family: var(--mono); font-size: 0.72rem; }
+    footer a:hover { color: var(--accent); }
+
+    /* ── Animations ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease, transform 0.6s ease; }
+    .reveal.visible { opacity: 1; transform: none; }
+
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  </style>
 </head>
-<body class="bg-slate-50 text-slate-900 font-sans">
 
-    <header class="gradient-bg text-white pt-16 pb-32 px-6">
-        <div class="max-w-6xl mx-auto text-center">
-            <div class="flex flex-col items-center mb-8">
-                <span class="bg-blue-500/20 text-blue-300 px-4 py-1 rounded-full text-xs font-bold border border-blue-500/30 mb-4 inline-block tracking-widest uppercase">
-                    Licenciatura en Ciencia de Datos · UBA
-                </span>
-                <h1 class="text-3xl md:text-5xl font-extrabold mb-6 leading-tight max-w-4xl">
-                    Caracterizaciones de las Entidades Financieras de Argentina en función a sus Carteras de Deudores
-                </h1>
-                <div class="h-1 w-24 bg-blue-500 rounded-full mb-6"></div>
-                <p class="text-lg text-slate-300 max-w-3xl mx-auto leading-relaxed italic">
-                    Análisis de la jerarquía de pagos y eficacia en el recupero de deuda mediante el modelado de Cadenas de Markov y variables de comportamiento.
-                </p>
-            </div>
-            
-            <div class="flex flex-wrap justify-center gap-8 text-sm text-slate-400 border-t border-white/10 pt-8">
-                <div><span class="text-slate-500 uppercase font-bold text-[10px] block mb-1">Autor</span> <span class="text-white font-medium">Tobias Llop</span></div>
-                <div><span class="text-slate-500 uppercase font-bold text-[10px] block mb-1">Director</span> <span class="text-white font-medium">Pablo Mislej</span></div>
-                <div><span class="text-slate-500 uppercase font-bold text-[10px] block mb-1">Dataset</span> <span class="text-white font-medium">BCRA (CENDEU)</span></div>
-            </div>
+<body>
+
+<header>
+  <div class="tag">Licenciatura en Ciencia de Datos · UBA</div>
+  <h1>Caracterizaciones de las<br/><em>Entidades Financieras</em><br/>en función a sus Carteras</h1>
+  <p class="subtitle">
+    Análisis de la jerarquía de pagos y eficacia en el recupero de deuda mediante el modelado de Cadenas de Markov y variables de comportamiento.
+  </p>
+  <div class="meta-row">
+    <span>Tobias Llop — tobiasllop@gmail.com</span>
+    <span>Director: Pablo Mislej</span>
+    <span>Datos: Central de Deudores BCRA</span>
+  </div>
+</header>
+
+<hr class="divider" />
+
+<section>
+  <div class="section-label reveal">Pre-procesamiento</div>
+  <h2 class="reveal">Metodología de Muestreo Sistemático</h2>
+  
+  <div class="about-grid" style="align-items: center;">
+    <div class="reveal">
+      <p>Para determinar los umbrales de las clases de manera estadísticamente válida sin saturar la capacidad de cómputo, aplicamos un muestreo sistemático sobre la población total de personas físicas.</p>
+      <p>Se aislaron los registros cuyos <strong>CUIL/CUIT finalizan en el dígito 0</strong>, obteniendo una muestra representativa del 10% de la masa crediticia nacional (~3.5 millones de deudores).</p>
+      <div style="font-family: var(--mono); font-size: 0.75rem; color: var(--accent); margin-top: 1.5rem; padding: 0.8rem; border: 1px solid var(--border); border-radius: 4px; background: var(--surface);">
+        > RESULTADO: 3.581.759 deudores únicos evaluados.
+      </div>
+    </div>
+    <div class="about-card reveal" style="padding: 1rem;">
+      <h3 style="text-align: center; font-family: var(--mono); font-size: 0.75rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase;">Distribución (Escala Logarítmica)</h3>
+      <div style="height: 220px; width: 100%;">
+        <canvas id="classHistogram"></canvas>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<section>
+  <div class="section-label reveal">Estratificación</div>
+  <h2 class="reveal">Definición de Clases</h2>
+  <p class="reveal">Puntos de corte basados en activos reales de la economía para aislar comportamientos y evitar sesgos inflacionarios, definiendo el perfil de riesgo de las carteras.</p>
+
+  <div class="classes-grid">
+    <div class="about-card reveal" style="border-top: 2px solid #5b8cee;">
+      <i class="fas fa-shopping-cart" style="font-size: 1.5rem; color: #5b8cee; margin-bottom: 1rem; display: block;"></i>
+      <h3>Deudas Pequeñas</h3>
+      <p style="font-family: var(--mono); font-size: 1.2rem; color: var(--text); margin-bottom: 0.5rem;">Hasta $25.5M</p>
+      <p>Referencia: <strong>Renault Kwid 0km</strong>.<br/>Consumo, tarjetas de crédito y micropréstamos.</p>
+    </div>
+    
+    <div class="about-card reveal" style="border-top: 2px solid var(--accent);">
+      <i class="fas fa-truck-pickup" style="font-size: 1.5rem; color: var(--accent); margin-bottom: 1rem; display: block;"></i>
+      <h3>Deudas Medianas</h3>
+      <p style="font-family: var(--mono); font-size: 1.2rem; color: var(--text); margin-bottom: 0.5rem;">Hasta $150M</p>
+      <p>Referencia: <strong>Depto 2 Ambientes</strong>.<br/>Préstamos prendarios y financiamiento personal.</p>
+    </div>
+
+    <div class="about-card reveal" style="border-top: 2px solid #c07e35;">
+      <i class="fas fa-city" style="font-size: 1.5rem; color: #c07e35; margin-bottom: 1rem; display: block;"></i>
+      <h3>Deudas Grandes</h3>
+      <p style="font-family: var(--mono); font-size: 1.2rem; color: var(--text); margin-bottom: 0.5rem;">> $150M</p>
+      <p>Referencia: <strong>Inmueble superior</strong>.<br/>Créditos comerciales, patrimoniales y corporativos.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<section>
+  <div class="section-label reveal">Metodología Core</div>
+  <h2 class="reveal">Marco Teórico: Modelado de Markov</h2>
+  
+  <div class="about-grid" style="align-items: start;">
+    <div class="reveal">
+      <h3 style="font-family: var(--serif); font-size: 1.2rem; color: var(--text); margin-bottom: 1rem;">1. El Deudor como Votante</h3>
+      <p>Utilizamos el modelo del <strong>"Hincha de Buen Tiempo"</strong> (Fair Weather Fan). Cada vez que un deudor tiene deudas con dos entidades (A y B) en la misma situación inicial, se genera un duelo directo.</p>
+      <p>Si en el mes siguiente el deudor prioriza el pago a la entidad A sobre la B, la entidad B (perdedora) "emite un voto" de confianza hacia la entidad A (ganadora). Este flujo de capital revela la verdadera jerarquía ante restricciones presupuestarias.</p>
+
+      <h3 style="font-family: var(--serif); font-size: 1.2rem; color: var(--text); margin-top: 1.5rem; margin-bottom: 1rem;">2. Etapas del Algoritmo</h3>
+      <ul class="theory-list">
+        <li><strong>Matriz de Votos (V):</strong> Se contabilizan todas las derrotas relativas entre bancos.</li>
+        <li><strong>Matriz Estocástica (S):</strong> Normalización. Los bancos "invictos" se tratan como nodos sumideros, repartiendo probabilidad (1/n).</li>
+        <li><strong>Damping Factor (S̅):</strong> Se aplica factor α = 0.85 para garantizar que el sistema sea irreducible.</li>
+        <li><strong>Vector Estacionario (π):</strong> El autovector principal determina el ranking (poder de atracción de pagos).</li>
+      </ul>
+    </div>
+
+    <div class="reveal">
+      <div class="about-card" style="margin-bottom: 1rem; border-color: rgba(91, 140, 238, 0.3); background: rgba(20, 23, 32, 0.8);">
+        <h3 style="font-family: var(--mono); font-size: 0.75rem; color: var(--accent2); text-transform: uppercase; letter-spacing: 0.1em;"><i class="fas fa-bolt"></i> Lógica de Votos (3 Bancos)</h3>
+        <p style="font-size: 0.85rem; margin-bottom: 0.8rem;"><strong>X:</strong> Galicia (A) mejora, Francés (B) no. <span style="color: var(--accent2);">→ B vota a A</span></p>
+        <p style="font-size: 0.85rem; margin-bottom: 0.8rem;"><strong>Y:</strong> Nación (C) empeora menos que Francés (B). <span style="color: var(--accent2);">→ B vota a C</span></p>
+        <p style="font-size: 0.85rem; margin-bottom: 0;"><strong>Z:</strong> Nación (C) mejora, Galicia (A) no. <span style="color: var(--accent2);">→ A vota a C</span></p>
+      </div>
+
+      <div class="matrix-box">
+        <div class="matrix-row">
+          <span class="matrix-label">V =</span>
+          <div class="matrix-bracket">
+            <span style="color: var(--muted)">0</span><span style="color: var(--muted)">0</span><span style="color: var(--accent)">1</span>
+            <span style="color: var(--accent)">1</span><span style="color: var(--muted)">0</span><span style="color: var(--accent)">1</span>
+            <span style="color: var(--muted)">0</span><span style="color: var(--muted)">0</span><span style="color: var(--muted)">0</span>
+          </div>
         </div>
-    </header>
-
-    <section class="max-w-6xl mx-auto -mt-16 px-6 relative z-10 mb-20">
-        <div class="bg-white rounded-3xl p-8 md:p-12 card-shadow border border-slate-100">
-            <h2 class="text-2xl font-bold mb-6 flex items-center gap-3 text-slate-800">
-                <i class="fas fa-microscope text-blue-600"></i> Metodología de Muestreo Sistemático
-            </h2>
-            <div class="grid md:grid-cols-2 gap-10 items-center">
-                <div>
-                    <p class="text-slate-600 leading-relaxed mb-4">
-                        Para determinar los umbrales de las clases de manera estadísticamente válida sin saturar la capacidad de cómputo, aplicamos un muestreo sistemático sobre la población total de personas físicas.
-                    </p>
-                    <p class="text-slate-600 leading-relaxed mb-4">
-                        Se aislaron los registros cuyos <strong>CUIL/CUIT finalizan en el dígito 0</strong>, obteniendo una muestra representativa del 10% de la masa crediticia nacional (~3.5 millones de deudores). Este subconjunto permitió calibrar los cortes de clases sin comprometer la integridad de la segmentación.
-                    </p>
-                    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg mt-4 text-sm text-blue-900">
-                        <strong>Resultado:</strong> 3.581.759 deudores únicos evaluados.
-                    </div>
-                </div>
-                <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200">
-                    <h3 class="text-center font-bold text-slate-700 mb-2">Distribución de Deudas por Clase</h3>
-                    <p class="text-center text-xs text-slate-500 mb-4">(Escala Logarítmica - Muestra 10%)</p>
-                    <canvas id="classHistogram" style="max-height: 250px;"></canvas>
-                </div>
-            </div>
+        <div class="matrix-row">
+          <span class="matrix-label">S =</span>
+          <div class="matrix-bracket">
+            <span style="color: var(--muted)">0</span><span style="color: var(--muted)">0</span><span>1</span>
+            <span>0.5</span><span style="color: var(--muted)">0</span><span>0.5</span>
+            <span style="color: var(--accent2)">.33</span><span style="color: var(--accent2)">.33</span><span style="color: var(--accent2)">.33</span>
+          </div>
         </div>
-    </section>
-
-    <section class="max-w-6xl mx-auto px-6 mb-20">
-        <div class="text-center mb-12">
-            <h2 class="text-3xl font-bold text-slate-800 mb-4 tracking-tight">Definición de Clases</h2>
-            <p class="text-slate-600 text-lg max-w-2xl mx-auto">Puntos de corte basados en activos reales para aislar comportamientos y caracterizar el perfil de riesgo de las carteras.</p>
+        <div class="matrix-row">
+          <span class="matrix-label">S̅ =</span>
+          <div class="matrix-bracket">
+            <span style="color: var(--muted)">.05</span><span style="color: var(--muted)">.05</span><span>.90</span>
+            <span>.47</span><span style="color: var(--muted)">.05</span><span>.47</span>
+            <span>.33</span><span>.33</span><span>.33</span>
+          </div>
         </div>
-        <div class="grid md:grid-cols-3 gap-6">
-            <div class="bg-white p-8 rounded-2xl border border-slate-200 text-center hover:shadow-lg transition-all border-b-4 border-b-green-500">
-                <i class="fas fa-shopping-cart text-4xl text-green-500 mb-6"></i>
-                <h3 class="font-bold text-xl mb-2 text-slate-800">Deudas Pequeñas</h3>
-                <p class="text-2xl font-black mb-3 text-slate-900">Hasta $25.5M</p>
-                <p class="text-sm text-slate-500 bg-slate-50 p-3 rounded-lg leading-relaxed">
-                    Referencia: <strong>Renault Kwid 0km</strong>.<br>
-                    Consumo, tarjetas y microcréditos.
-                </p>
-            </div>
-            <div class="bg-white p-8 rounded-2xl border border-slate-200 text-center hover:shadow-lg transition-all border-b-4 border-b-blue-500">
-                <i class="fas fa-truck-pickup text-4xl text-blue-500 mb-6"></i>
-                <h3 class="font-bold text-xl mb-2 text-slate-800">Deudas Medianas</h3>
-                <p class="text-2xl font-black mb-3 text-slate-900">Hasta $150M</p>
-                <p class="text-sm text-slate-500 bg-slate-50 p-3 rounded-lg leading-relaxed">
-                    Referencia: <strong>Depto 2 Ambientes</strong>.<br>
-                    Préstamos prendarios y personales.
-                </p>
-            </div>
-            <div class="bg-white p-8 rounded-2xl border border-slate-200 text-center hover:shadow-lg transition-all border-b-4 border-b-purple-500">
-                <i class="fas fa-city text-4xl text-purple-500 mb-6"></i>
-                <h3 class="font-bold text-xl mb-2 text-slate-800">Deudas Grandes</h3>
-                <p class="text-2xl font-black mb-3 text-slate-900">> $150M</p>
-                <p class="text-sm text-slate-500 bg-slate-50 p-3 rounded-lg leading-relaxed">
-                    Referencia: <strong>Inmueble superior</strong>.<br>
-                    Créditos comerciales y corporativos.
-                </p>
-            </div>
-        </div>
-    </section>
+        <p style="font-family: var(--mono); font-size: 0.65rem; color: var(--muted); text-align: center; margin-top: 1rem;">
+          * Nodo sumidero compensado (1/N). Factor α=0.85.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
 
-    <section class="max-w-6xl mx-auto px-6 mb-20">
-        <div class="bg-white rounded-3xl p-8 md:p-12 card-shadow border border-slate-100">
-            <h2 class="text-2xl font-bold mb-8 flex items-center gap-3 text-slate-800 border-b pb-6">
-                <i class="fas fa-book-open text-blue-600"></i> Marco Teórico: Modelado de Markov
-            </h2>
-            
-            <div class="space-y-12">
-                <div class="grid lg:grid-cols-2 gap-12">
-                    <div>
-                        <h3 class="text-xl font-bold text-slate-800 mb-4">1. La Intuición: El Deudor como Votante</h3>
-                        <p class="text-slate-600 leading-relaxed mb-6">
-                            Utilizamos el modelo del <strong>"Hincha de Buen Tiempo"</strong> (Fair Weather Fan). Cada vez que un deudor tiene deudas con dos entidades (A y B) en la misma situación inicial, se genera un "partido". Si en el mes siguiente el deudor prioriza el pago a la entidad A sobre la B, la entidad B (perdedora) "emite un voto" de confianza hacia la entidad A (ganadora).
-                        </p>
+<hr class="divider" />
 
-                        <h3 class="text-xl font-bold text-slate-800 mb-4">2. Etapas del Algoritmo</h3>
-                        <ul class="space-y-4 text-slate-600">
-                            <li class="flex items-start gap-3">
-                                <i class="fas fa-check-circle text-blue-500 mt-1 text-lg"></i> 
-                                <span><strong>Matriz de Votos (V):</strong> Se contabilizan todas las derrotas relativas entre bancos.</span>
-                            </li>
-                            <li class="flex items-start gap-3">
-                                <i class="fas fa-check-circle text-blue-500 mt-1 text-lg"></i> 
-                                <span><strong>Matriz Estocástica (S):</strong> Se normalizan los votos. Los bancos "invictos" se tratan como nodos sumideros, repartiendo su probabilidad equitativamente (1/n).</span>
-                            </li>
-                            <li class="flex items-start gap-3">
-                                <i class="fas fa-check-circle text-blue-500 mt-1 text-lg"></i> 
-                                <span><strong>Matriz de Teleportación (S̅):</strong> Se aplica un <em>Damping Factor</em> (α = 0.85). Esto garantiza que el sistema sea irreducible y el ranking converja.</span>
-                            </li>
-                            <li class="flex items-start gap-3">
-                                <i class="fas fa-check-circle text-blue-500 mt-1 text-lg"></i> 
-                                <span><strong>Vector Estacionario (π):</strong> El autovector principal determina el ranking, representando el "poder de atracción de pagos" de cada banco.</span>
-                            </li>
-                        </ul>
-                    </div>
+<section>
+  <div class="section-label reveal">Resultados</div>
+  <h2 class="reveal">Rankings de Eficacia (Markov Score)</h2>
+  <p class="reveal">Poder de atracción de pagos segmentado por estrato de deuda. El score (π) indica la probabilidad a largo plazo de que un deudor priorice esa entidad.</p>
 
-                    <div class="flex flex-col gap-6">
-                        <div class="bg-blue-50/50 p-6 rounded-2xl border border-blue-100 flex-grow">
-                            <h4 class="text-sm font-black text-blue-800 uppercase tracking-widest mb-6"><i class="fas fa-calculator mr-2"></i> Lógica de Votos (Ejemplo 3 Bancos)</h4>
-                            <div class="space-y-4">
-                                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex gap-4 items-center">
-                                    <div class="bg-blue-500 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold flex-shrink-0">X</div>
-                                    <p class="text-sm text-slate-700">Galicia (A) mejora situación, Francés (B) no. <br><span class="font-bold text-blue-600 text-xs">→ B vota a A</span></p>
-                                </div>
-                                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex gap-4 items-center">
-                                    <div class="bg-blue-500 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold flex-shrink-0">Y</div>
-                                    <p class="text-sm text-slate-700">Nación (C) empeora menos que Francés (B). <br><span class="font-bold text-blue-600 text-xs">→ B vota a C</span></p>
-                                </div>
-                                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex gap-4 items-center">
-                                    <div class="bg-blue-500 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold flex-shrink-0">Z</div>
-                                    <p class="text-sm text-slate-700">Nación (C) mejora situación, Galicia (A) no. <br><span class="font-bold text-blue-600 text-xs">→ A vota a C</span></p>
-                                </div>
-                            </div>
-                        </div>
+  <div class="sit-nav reveal">
+    <button class="sit-btn active" onclick="updateRankingChart('pequenas')" id="btn-pequenas">Deudas Pequeñas</button>
+    <button class="sit-btn" onclick="updateRankingChart('medianas')" id="btn-medianas">Deudas Medianas</button>
+    <button class="sit-btn" onclick="updateRankingChart('grandes')" id="btn-grandes">Deudas Grandes</button>
+  </div>
 
-                        <div class="bg-slate-900 p-6 rounded-2xl shadow-xl flex-grow">
-                            <h4 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-6 text-center">Evolución Matemática</h4>
-                            <div class="space-y-6">
-                                <div class="flex items-center justify-center gap-6">
-                                    <span class="text-blue-400 font-serif italic text-2xl">V =</span>
-                                    <div class="matrix-bracket font-mono text-center text-xs grid grid-cols-3 gap-x-6 gap-y-1 text-slate-300">
-                                        <div class="text-slate-600">0</div><div>0</div><div class="text-blue-400 font-bold">1</div>
-                                        <div class="text-blue-400 font-bold">1</div><div class="text-slate-600">0</div><div class="text-blue-400 font-bold">1</div>
-                                        <div class="text-slate-600">0</div><div class="text-slate-600">0</div><div class="text-slate-600">0</div>
-                                    </div>
-                                </div>
-                                <div class="flex items-center justify-center gap-6">
-                                    <span class="text-blue-400 font-serif italic text-2xl">S =</span>
-                                    <div class="matrix-bracket font-mono text-center text-xs grid grid-cols-3 gap-x-4 gap-y-1 text-slate-300">
-                                        <div class="text-slate-600">0</div><div>0</div><div>1</div>
-                                        <div>0.5</div><div class="text-slate-600">0</div><div>0.5</div>
-                                        <div class="text-amber-400 font-bold">.33</div><div class="text-amber-400 font-bold">.33</div><div class="text-amber-400 font-bold">.33</div>
-                                    </div>
-                                </div>
-                                <div class="flex items-center justify-center gap-6">
-                                    <span class="text-blue-400 font-serif italic text-2xl">S̅ =</span>
-                                    <div class="matrix-bracket font-mono text-center text-[10px] grid grid-cols-3 gap-x-4 gap-y-1 text-slate-400">
-                                        <div>.05</div><div>.05</div><div>.90</div>
-                                        <div>.47</div><div>.05</div><div>.47</div>
-                                        <div>.33</div><div>.33</div><div>.33</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <p class="text-[10px] text-slate-500 mt-4 text-center tracking-tight">El nodo sumidero se estabiliza con 1/N. Se aplica Damping Factor (α=0.85).</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+  <div class="chart-wrapper reveal">
+    <div style="height: 500px; width: 100%;">
+      <canvas id="rankingChart"></canvas>
+    </div>
+  </div>
+</section>
 
-    <section class="bg-slate-900 py-24 px-6 text-white">
-        <div class="max-w-6xl mx-auto">
-            <div class="flex flex-col md:flex-row justify-between items-center mb-12 gap-6">
-                <div>
-                    <h2 class="text-4xl font-bold mb-2 tracking-tighter">Rankings Finales</h2>
-                    <p class="text-slate-400">Eficacia de cobranza por segmento de deuda.</p>
-                </div>
-                <div class="flex bg-slate-800 p-1.5 rounded-xl border border-slate-700">
-                    <button onclick="updateRankingChart('pequenos')" class="tab-btn active-tab px-6 py-2.5 rounded-lg text-xs font-black bg-blue-600 text-white shadow-md transition-all uppercase">Deudas Pequeñas</button>
-                    <button onclick="updateRankingChart('medianos')" class="tab-btn px-6 py-2.5 rounded-lg text-xs font-black text-slate-400 hover:text-white transition-all uppercase">Deudas Medianas</button>
-                    <button onclick="updateRankingChart('grandes')" class="tab-btn px-6 py-2.5 rounded-lg text-xs font-black text-slate-400 hover:text-white transition-all uppercase">Deudas Grandes</button>
-                </div>
-            </div>
-            
-            <div class="bg-white rounded-3xl p-6 md:p-10 shadow-2xl text-slate-900">
-                <canvas id="rankingChart" style="height: 550px; width: 100%;"></canvas>
-            </div>
-        </div>
-    </section>
+<footer>
+  <div>
+    <p>Tobias Llop · L.U. 871/22 · Licenciatura en Ciencia de Datos · FCEyN · UBA</p>
+    <p style="margin-top:0.3rem">Director: Pablo Mislej — pfmislej@dm.uba.ar</p>
+  </div>
+  <div style="text-align:right">
+    <p><a href="https://www.bcra.gob.ar" target="_blank">BCRA ↗</a></p>
+    <p style="margin-top:0.3rem;color:var(--border);font-family:var(--mono);font-size:0.65rem">Central de Deudores · Análisis Estocástico</p>
+  </div>
+</footer>
 
-    <footer class="bg-slate-950 py-12 text-center border-t border-white/5">
-        <div class="max-w-6xl mx-auto px-6">
-            <p class="text-slate-500 text-sm mb-4">© 2026 Tesis de Grado · Ciencia de Datos · UBA</p>
-            <p class="text-slate-600 text-xs max-w-2xl mx-auto leading-relaxed">
-                Fuente: Central de Deudores del Sistema Financiero (BCRA). Análisis realizado mediante técnicas de modelado estocástico.
-            </p>
-        </div>
-    </footer>
+<script>
+  // --- 1. HISTOGRAMA DE CLASES ---
+  const ctxHisto = document.getElementById('classHistogram').getContext('2d');
+  new Chart(ctxHisto, {
+      type: 'bar',
+      data: {
+          labels: ['Pequeñas', 'Sin Deuda', 'Medianas', 'Grandes'],
+          datasets: [{
+              data: [3442150, 111230, 24916, 3463],
+              backgroundColor: ['#5b8cee', '#2a2f42', '#e8c97a', '#c07e35'],
+              borderRadius: 2,
+              barPercentage: 0.6
+          }]
+      },
+      options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+              x: { 
+                  grid: { display: false },
+                  ticks: { font: { family: 'IBM Plex Mono', size: 10 }, color: '#9aa0b4' }
+              },
+              y: { 
+                  type: 'logarithmic', 
+                  grid: { color: '#2a2f42' },
+                  ticks: { 
+                      font: { family: 'IBM Plex Mono', size: 10 }, color: '#6b7280',
+                      callback: v => (v === 1000 || v === 10000 || v === 100000 || v === 1000000) ? (v/1000)+'k' : '' 
+                  },
+                  border: { display: false }
+              }
+          },
+          plugins: { 
+              legend: { display: false },
+              tooltip: {
+                  backgroundColor: '#1c2030',
+                  titleFont: { family: 'IBM Plex Sans' },
+                  bodyFont: { family: 'IBM Plex Mono' },
+                  callbacks: { label: (c) => ` Deudores: ${c.raw.toLocaleString()}` }
+              }
+          }
+      }
+  });
 
-    <script>
-        // --- DATA HISTOGRAMA ---
-        const classData = {
-            labels: ['Deudas Pequeñas', 'Sin Deuda', 'Deudas Medianas', 'Deudas Grandes'],
-            values: [3442150, 111230, 24916, 3463]
-        };
+  // --- 2. RANKINGS MARKOV ---
+  const rankings = {
+      pequenas: {
+          labels: ['MERCADOLIBRE S.R.L.', 'TARJETA NARANJA S.A.', 'NARANJA DIGITAL', 'BANCO NACION', 'BANCO MACRO S.A.', 'BBVA ARGENTINA', 'BANCO GALICIA', 'BANCO PROVINCIA', 'SANTANDER', 'BANCO INDUSTRIAL'],
+          values: [13.22, 7.70, 3.72, 3.55, 3.35, 2.70, 2.41, 2.20, 1.78, 1.62]
+      },
+      medianas: {
+          labels: ['BANCO GALICIA', 'BANCO NACION', 'SANTANDER', 'BBVA ARGENTINA', 'BANCO MACRO S.A.', 'ICBC ARGENTINA', 'BANCO CREDICOOP', 'BANCO PROVINCIA', 'BANCO SUPERVIELLE', 'BANCO PATAGONIA'],
+          values: [12.86, 10.80, 10.57, 7.13, 5.67, 4.36, 3.64, 3.60, 3.55, 2.59]
+      },
+      grandes: {
+          labels: ['BANCO NACION', 'BANCO MACRO S.A.', 'BANCO GALICIA', 'BANCO PROVINCIA', 'SANTANDER', 'BBVA ARGENTINA', 'PROVINCIA LEASING', 'BANCO SUPERVIELLE', 'BANCO CREDICOOP', 'BANCO DEL SOL'],
+          values: [20.49, 10.65, 9.34, 8.15, 4.79, 4.00, 3.78, 3.30, 3.24, 2.49]
+      }
+  };
 
-        const ctxHisto = document.getElementById('classHistogram').getContext('2d');
-        new Chart(ctxHisto, {
-            type: 'bar',
-            data: {
-                labels: classData.labels,
-                datasets: [{
-                    data: classData.values,
-                    backgroundColor: ['#3b82f6', '#cbd5e1', '#94a3b8', '#64748b'],
-                    borderRadius: 4,
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: { grid: { display: false } },
-                    y: { type: 'logarithmic', grid: { color: '#f1f5f9' },
-                        ticks: { callback: v => (v === 1000 || v === 10000 || v === 100000 || v === 1000000) ? v.toLocaleString() : '' }
-                    }
-                },
-                plugins: { legend: { display: false } }
-            }
-        });
+  let rankingChart;
+  const ctxRanking = document.getElementById('rankingChart').getContext('2d');
 
-        // --- DATA RANKINGS ---
-        const rankings = {
-            pequenos: {
-                labels: ['MERCADOLIBRE S.R.L.', 'TARJETA NARANJA S.A.', 'NARANJA DIGITAL', 'BANCO NACION', 'BANCO MACRO S.A.', 'BBVA ARGENTINA', 'BANCO GALICIA', 'BANCO PROVINCIA', 'SANTANDER', 'BANCO INDUSTRIAL'],
-                values: [13.22, 7.70, 3.72, 3.55, 3.35, 2.70, 2.41, 2.20, 1.78, 1.62]
-            },
-            medianos: {
-                labels: ['BANCO GALICIA', 'BANCO NACION', 'SANTANDER', 'BBVA ARGENTINA', 'BANCO MACRO S.A.', 'ICBC ARGENTINA', 'BANCO CREDICOOP', 'BANCO PROVINCIA', 'BANCO SUPERVIELLE', 'BANCO PATAGONIA'],
-                values: [12.86, 10.80, 10.57, 7.13, 5.67, 4.36, 3.64, 3.60, 3.55, 2.59]
-            },
-            grandes: {
-                labels: ['BANCO NACION', 'BANCO MACRO S.A.', 'BANCO GALICIA', 'BANCO PROVINCIA', 'SANTANDER', 'BBVA ARGENTINA', 'PROVINCIA LEASING', 'BANCO SUPERVIELLE', 'BANCO CREDICOOP', 'BANCO DEL SOL'],
-                values: [20.49, 10.65, 9.34, 8.15, 4.79, 4.00, 3.78, 3.30, 3.24, 2.49]
-            }
-        };
+  function initRankingChart() {
+      const initialLabels = [...rankings.pequenas.labels].reverse();
+      const initialValues = [...rankings.pequenas.values].reverse();
+      
+      rankingChart = new Chart(ctxRanking, {
+          type: 'bar',
+          data: {
+              labels: initialLabels,
+              datasets: [{
+                  label: 'Markov Score (%)',
+                  data: initialValues,
+                  backgroundColor: initialValues.map((_, i) => i === initialValues.length - 1 ? '#e8c97a' : '#5b8cee'),
+                  borderRadius: 2,
+                  barPercentage: 0.5
+              }]
+          },
+          options: {
+              indexAxis: 'y', 
+              responsive: true, 
+              maintainAspectRatio: false,
+              scales: {
+                  x: { 
+                      beginAtZero: true, 
+                      grid: { color: '#2a2f42', borderDash: [4, 4] }, 
+                      ticks: { font: { family: 'IBM Plex Mono', size: 10 }, color: '#6b7280', callback: v => v + "%" },
+                      border: { display: false }
+                  },
+                  y: { 
+                      grid: { display: false }, 
+                      ticks: { font: { family: 'IBM Plex Sans', weight: '500', size: 11 }, color: '#e2e4ec' },
+                      border: { display: false }
+                  }
+              },
+              plugins: { 
+                  legend: { display: false },
+                  tooltip: {
+                      backgroundColor: '#1c2030',
+                      titleFont: { family: 'IBM Plex Sans' },
+                      bodyFont: { family: 'IBM Plex Mono' },
+                      callbacks: { label: (c) => ` Score: ${c.raw}%` }
+                  }
+              }
+          }
+      });
+  }
 
-        let rankingChart;
-        const ctxRanking = document.getElementById('rankingChart').getContext('2d');
+  window.updateRankingChart = function(clase) {
+      document.querySelectorAll('.sit-btn').forEach(btn => btn.classList.remove('active'));
+      document.getElementById('btn-'+clase).classList.add('active');
+      
+      const newLabels = [...rankings[clase].labels].reverse();
+      const newValues = [...rankings[clase].values].reverse();
+      
+      rankingChart.data.labels = newLabels;
+      rankingChart.data.datasets[0].data = newValues;
+      // El primero (que por el reverse es el último array element) va de dorado, el resto azul
+      rankingChart.data.datasets[0].backgroundColor = newValues.map((_, i) => i === newValues.length - 1 ? '#e8c97a' : '#5b8cee');
+      rankingChart.update();
+  };
 
-        function initRankingChart() {
-            const initialLabels = [...rankings.pequenos.labels].reverse();
-            const initialValues = [...rankings.pequenos.values].reverse();
-            rankingChart = new Chart(ctxRanking, {
-                type: 'bar',
-                data: {
-                    labels: initialLabels,
-                    datasets: [{
-                        label: 'Markov Score (%)',
-                        data: initialValues,
-                        backgroundColor: initialValues.map((_, i) => i === initialValues.length - 1 ? '#2563eb' : '#94a3b8'),
-                        borderRadius: 6,
-                    }]
-                },
-                options: {
-                    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
-                    scales: {
-                        x: { beginAtZero: true, border: {dash: [4, 4]}, ticks: { callback: v => v + "%" } },
-                        y: { grid: { display: false }, ticks: { font: { weight: 'bold', size: 11 }, color: '#334155' } }
-                    },
-                    plugins: { legend: { display: false } }
-                }
-            });
-        }
-
-        window.updateRankingChart = function(clase) {
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('bg-blue-600', 'text-white', 'shadow-md');
-                btn.classList.add('text-slate-400');
-                if(btn.innerText.toLowerCase().includes(clase === 'pequenos' ? 'pequeñas' : clase === 'medianos' ? 'medianas' : 'grandes')) {
-                    btn.classList.add('bg-blue-600', 'text-white', 'shadow-md');
-                    btn.classList.remove('text-slate-400');
-                }
-            });
-            const newLabels = [...rankings[clase].labels].reverse();
-            const newValues = [...rankings[clase].values].reverse();
-            rankingChart.data.labels = newLabels;
-            rankingChart.data.datasets[0].data = newValues;
-            rankingChart.data.datasets[0].backgroundColor = newValues.map((_, i) => i === newValues.length - 1 ? '#2563eb' : '#94a3b8');
-            rankingChart.update();
-        };
-
-        window.addEventListener('DOMContentLoaded', () => initRankingChart());
-    </script>
+  // --- 3. INIT & ANIMATIONS ---
+  window.addEventListener('DOMContentLoaded', () => {
+      initRankingChart();
+      
+      const ro = new IntersectionObserver(entries => {
+        entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); ro.unobserve(e.target); } });
+      }, { threshold: 0.08 });
+      document.querySelectorAll('.reveal').forEach(el => ro.observe(el));
+  });
+</script>
 </body>
 </html>
